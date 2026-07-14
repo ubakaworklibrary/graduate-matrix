@@ -24,7 +24,13 @@ export type CompetencyLevel = "L1" | "L2" | "L3" | "L4" | "L5";
 /** A workflow mode only. Database authorization will be enforced separately. */
 export type WorkflowRole = "graduate" | "mentor";
 
-export type ProfessionalBody = "cibse" | "iet" | "imeche" | "other";
+export type ProfessionalBody =
+  | "cibse"
+  | "iet"
+  | "imeche"
+  | "cibse-certification"
+  | "internal"
+  | "other";
 
 export type PrimaryOutcome =
   | "internal-graduate"
@@ -46,12 +52,19 @@ export type PrimaryOutcome =
 
 export type CibseMembershipTarget =
   | "none"
+  | "graduate"
+  | "affiliate"
   | "lcibse"
   | "acibse"
   | "mcibse"
   | "fcibse";
 
-export type IetMembershipTarget = "none" | "tmiet" | "miet";
+export type IetMembershipTarget =
+  | "none"
+  | "student"
+  | "tmiet"
+  | "miet"
+  | "fiet";
 
 export type EngineeringRegistrationTarget =
   | "none"
@@ -333,8 +346,10 @@ export interface CycleCompletedEvent extends ProgressionEventBase {
   mentorApprovedBy: string;
   managerSignedOffAt: IsoDateTime | null;
   managerSignedOffBy: string | null;
+  managerSignoffConfirmed: boolean;
   approvalAuthority: ProgressionApprovalAuthority;
   reason: string | null;
+  evidenceBasis: string;
 }
 
 export interface CyclePausedEvent extends ProgressionEventBase {

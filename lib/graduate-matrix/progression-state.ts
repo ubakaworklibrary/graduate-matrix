@@ -74,7 +74,9 @@ export interface CompleteCycleInput extends TransitionContext {
   mentorApprovedBy: string;
   managerSignedOffAt: IsoDateTime;
   managerSignedOffBy: string;
+  managerSignoffConfirmed: boolean;
   reason: string | null;
+  evidenceBasis: string;
 }
 
 export interface ReopenEarlierCycleInput extends TransitionContext {
@@ -266,8 +268,10 @@ export function completeActiveCycle(
     mentorApprovedBy: input.mentorApprovedBy,
     managerSignedOffAt: input.managerSignedOffAt,
     managerSignedOffBy: input.managerSignedOffBy,
+    managerSignoffConfirmed: input.managerSignoffConfirmed,
     approvalAuthority: "mentor-and-manager",
     reason: input.reason,
+    evidenceBasis: input.evidenceBasis,
   };
 
   return success(
