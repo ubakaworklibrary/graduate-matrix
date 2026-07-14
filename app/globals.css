@@ -1,26 +1,84 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --etch-accent: #00a786;
+  --etch-accent-hover: #008f72;
+  --etch-ink: #1a1a2e;
+  --etch-text-secondary: #555555;
+  --etch-text-muted: #888888;
+  --etch-page: #f4f5f7;
+  --etch-surface: #ffffff;
+  --etch-surface-subtle: #f8f9fc;
+  --etch-border: #dde2ea;
+  --etch-border-soft: #eef0f4;
+  --etch-hover: #f0faf8;
+  --etch-success: #27ae60;
+  --etch-warning: #e67e22;
+  --etch-danger: #c0392b;
+
+  --level-1: #e8f0fe;
+  --level-2: #e8f8f5;
+  --level-3: #fef9e7;
+  --level-4: #dff3ec;
+  --level-5: #bfe8db;
+
+  --not-complete-bg: #fef3d0;
+  --not-complete-border: #e67e22;
+  --not-complete-text: #7a5200;
+  --complete-bg: #d4f0e4;
+  --complete-border: #27ae60;
+  --complete-text: #145a36;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-nunito-sans);
+  --font-mono: var(--font-jetbrains-mono);
+
+  --color-accent: var(--etch-accent);
+  --color-accent-hover: var(--etch-accent-hover);
+  --color-ink: var(--etch-ink);
+  --color-text-secondary: var(--etch-text-secondary);
+  --color-text-muted: var(--etch-text-muted);
+  --color-page: var(--etch-page);
+  --color-surface: var(--etch-surface);
+  --color-surface-subtle: var(--etch-surface-subtle);
+  --color-border: var(--etch-border);
+  --color-border-soft: var(--etch-border-soft);
+  --color-hover: var(--etch-hover);
+  --color-success: var(--etch-success);
+  --color-warning: var(--etch-warning);
+  --color-danger: var(--etch-danger);
+
+  --color-level-1: var(--level-1);
+  --color-level-2: var(--level-2);
+  --color-level-3: var(--level-3);
+  --color-level-4: var(--level-4);
+  --color-level-5: var(--level-5);
+
+  --color-not-complete-bg: var(--not-complete-bg);
+  --color-not-complete-border: var(--not-complete-border);
+  --color-not-complete-text: var(--not-complete-text);
+  --color-complete-bg: var(--complete-bg);
+  --color-complete-border: var(--complete-border);
+  --color-complete-text: var(--complete-text);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100vh;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--etch-page);
+  color: var(--etch-ink);
+  font-family: var(--font-nunito-sans), Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
