@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import type { Database } from "@/types/database";
 
 function requireEnvironmentValue(
   value: string | undefined,
@@ -23,7 +24,7 @@ export async function createClient() {
     "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
   );
 
-  return createServerClient(supabaseUrl, supabasePublishableKey, {
+  return createServerClient<Database>(supabaseUrl, supabasePublishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
