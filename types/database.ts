@@ -14,6 +14,142 @@ export type Database = {
   }
   public: {
     Tables: {
+      baseline_task_definitions: {
+        Row: {
+          completion_mode: string
+          definition_version: number
+          description: string
+          id: string
+          is_active: boolean
+          mandatory: boolean
+          source_order: number
+          title: string
+        }
+        Insert: {
+          completion_mode: string
+          definition_version?: number
+          description: string
+          id: string
+          is_active?: boolean
+          mandatory: boolean
+          source_order: number
+          title: string
+        }
+        Update: {
+          completion_mode?: string
+          definition_version?: number
+          description?: string
+          id?: string
+          is_active?: boolean
+          mandatory?: boolean
+          source_order?: number
+          title?: string
+        }
+        Relationships: []
+      }
+      candidate_baseline_setups: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          formal_training_started_at: string | null
+          formal_training_started_by_display_name: string | null
+          formal_training_started_by_user_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          formal_training_started_at?: string | null
+          formal_training_started_by_display_name?: string | null
+          formal_training_started_by_user_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          formal_training_started_at?: string | null
+          formal_training_started_by_display_name?: string | null
+          formal_training_started_by_user_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_baseline_setups_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: true
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_baseline_setups_formal_training_started_by_user__fkey"
+            columns: ["formal_training_started_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      candidate_baseline_tasks: {
+        Row: {
+          candidate_id: string
+          completed_at: string | null
+          completed_by_display_name: string | null
+          completed_by_user_id: string | null
+          definition_id: string
+          id: string
+          note: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          completed_at?: string | null
+          completed_by_display_name?: string | null
+          completed_by_user_id?: string | null
+          definition_id: string
+          id?: string
+          note?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          completed_at?: string | null
+          completed_by_display_name?: string | null
+          completed_by_user_id?: string | null
+          definition_id?: string
+          id?: string
+          note?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_baseline_tasks_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_baseline_setups"
+            referencedColumns: ["candidate_id"]
+          },
+          {
+            foreignKeyName: "candidate_baseline_tasks_completed_by_user_id_fkey"
+            columns: ["completed_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "candidate_baseline_tasks_definition_id_fkey"
+            columns: ["definition_id"]
+            isOneToOne: false
+            referencedRelation: "baseline_task_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       candidate_competencies: {
         Row: {
           active_cycle_id: string | null
@@ -63,6 +199,153 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "competency_definitions"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidate_pathway_lcc_strands: {
+        Row: {
+          candidate_id: string
+          strand_code: string
+        }
+        Insert: {
+          candidate_id: string
+          strand_code: string
+        }
+        Update: {
+          candidate_id?: string
+          strand_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_pathway_lcc_strands_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_pathways"
+            referencedColumns: ["candidate_id"]
+          },
+        ]
+      }
+      candidate_pathway_specialist_routes: {
+        Row: {
+          candidate_id: string
+          route_code: string
+        }
+        Insert: {
+          candidate_id: string
+          route_code: string
+        }
+        Update: {
+          candidate_id?: string
+          route_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_pathway_specialist_routes_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_pathways"
+            referencedColumns: ["candidate_id"]
+          },
+        ]
+      }
+      candidate_pathways: {
+        Row: {
+          academic_route: string
+          candidate_id: string
+          cibse_membership_target: string
+          created_at: string
+          current_membership_status: string
+          engineering_registration_target: string
+          iet_membership_target: string
+          notes: string
+          primary_outcome: string
+          professional_body: string
+          updated_at: string
+        }
+        Insert: {
+          academic_route?: string
+          candidate_id: string
+          cibse_membership_target: string
+          created_at?: string
+          current_membership_status?: string
+          engineering_registration_target: string
+          iet_membership_target: string
+          notes?: string
+          primary_outcome: string
+          professional_body: string
+          updated_at?: string
+        }
+        Update: {
+          academic_route?: string
+          candidate_id?: string
+          cibse_membership_target?: string
+          created_at?: string
+          current_membership_status?: string
+          engineering_registration_target?: string
+          iet_membership_target?: string
+          notes?: string
+          primary_outcome?: string
+          professional_body?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_pathways_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: true
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidate_relationships: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          display_name: string
+          ends_at: string | null
+          id: string
+          relationship_type: string
+          starts_at: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          display_name: string
+          ends_at?: string | null
+          id?: string
+          relationship_type: string
+          starts_at?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          display_name?: string
+          ends_at?: string | null
+          id?: string
+          relationship_type?: string
+          starts_at?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_relationships_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_relationships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
