@@ -509,6 +509,386 @@ export type Database = {
         }
         Relationships: []
       }
+      development_actions: {
+        Row: {
+          archive_reason: string | null
+          archived_at: string | null
+          archived_by_display_name: string | null
+          archived_by_user_id: string | null
+          candidate_competency_id: string
+          candidate_id: string
+          carried_forward_from_action_id: string | null
+          completed_at: string | null
+          completed_by_display_name: string | null
+          completed_by_user_id: string | null
+          created_at: string
+          created_by_display_name: string
+          created_by_user_id: string | null
+          cycle_id: string
+          due_date: string | null
+          id: string
+          notes: string
+          owner: string
+          priority: string
+          source_standard_task_definition_id: string | null
+          status: string
+          submitted_at: string | null
+          submitted_by_display_name: string | null
+          submitted_by_user_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by_display_name?: string | null
+          archived_by_user_id?: string | null
+          candidate_competency_id: string
+          candidate_id: string
+          carried_forward_from_action_id?: string | null
+          completed_at?: string | null
+          completed_by_display_name?: string | null
+          completed_by_user_id?: string | null
+          created_at?: string
+          created_by_display_name: string
+          created_by_user_id?: string | null
+          cycle_id: string
+          due_date?: string | null
+          id?: string
+          notes?: string
+          owner: string
+          priority: string
+          source_standard_task_definition_id?: string | null
+          status: string
+          submitted_at?: string | null
+          submitted_by_display_name?: string | null
+          submitted_by_user_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          archive_reason?: string | null
+          archived_at?: string | null
+          archived_by_display_name?: string | null
+          archived_by_user_id?: string | null
+          candidate_competency_id?: string
+          candidate_id?: string
+          carried_forward_from_action_id?: string | null
+          completed_at?: string | null
+          completed_by_display_name?: string | null
+          completed_by_user_id?: string | null
+          created_at?: string
+          created_by_display_name?: string
+          created_by_user_id?: string | null
+          cycle_id?: string
+          due_date?: string | null
+          id?: string
+          notes?: string
+          owner?: string
+          priority?: string
+          source_standard_task_definition_id?: string | null
+          status?: string
+          submitted_at?: string | null
+          submitted_by_display_name?: string | null
+          submitted_by_user_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "development_actions_archived_by_user_id_fkey"
+            columns: ["archived_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "development_actions_candidate_competency_fkey"
+            columns: ["candidate_id", "candidate_competency_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_competencies"
+            referencedColumns: ["candidate_id", "id"]
+          },
+          {
+            foreignKeyName: "development_actions_carried_forward_fkey"
+            columns: ["candidate_id", "carried_forward_from_action_id"]
+            isOneToOne: false
+            referencedRelation: "development_actions"
+            referencedColumns: ["candidate_id", "id"]
+          },
+          {
+            foreignKeyName: "development_actions_completed_by_user_id_fkey"
+            columns: ["completed_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "development_actions_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "development_actions_cycle_fkey"
+            columns: ["candidate_competency_id", "cycle_id"]
+            isOneToOne: false
+            referencedRelation: "competency_cycles"
+            referencedColumns: ["candidate_competency_id", "id"]
+          },
+          {
+            foreignKeyName: "development_actions_source_standard_task_definition_id_fkey"
+            columns: ["source_standard_task_definition_id"]
+            isOneToOne: false
+            referencedRelation: "standard_task_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "development_actions_submitted_by_user_id_fkey"
+            columns: ["submitted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      evidence_action_links: {
+        Row: {
+          created_at: string
+          created_by_display_name: string
+          created_by_user_id: string | null
+          development_action_id: string
+          evidence_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by_display_name: string
+          created_by_user_id?: string | null
+          development_action_id: string
+          evidence_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          created_by_display_name?: string
+          created_by_user_id?: string | null
+          development_action_id?: string
+          evidence_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_action_links_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "evidence_action_links_development_action_id_fkey"
+            columns: ["development_action_id"]
+            isOneToOne: false
+            referencedRelation: "development_actions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_action_links_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "evidence_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evidence_competency_links: {
+        Row: {
+          accepted_at: string | null
+          accepted_by_display_name: string | null
+          accepted_by_user_id: string | null
+          competency_definition_id: string
+          created_at: string
+          evidence_id: string
+          id: string
+          link_type: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by_display_name?: string | null
+          accepted_by_user_id?: string | null
+          competency_definition_id: string
+          created_at?: string
+          evidence_id: string
+          id?: string
+          link_type: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by_display_name?: string | null
+          accepted_by_user_id?: string | null
+          competency_definition_id?: string
+          created_at?: string
+          evidence_id?: string
+          id?: string
+          link_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_competency_links_accepted_by_user_id_fkey"
+            columns: ["accepted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "evidence_competency_links_competency_definition_id_fkey"
+            columns: ["competency_definition_id"]
+            isOneToOne: false
+            referencedRelation: "competency_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_competency_links_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "evidence_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      evidence_entries: {
+        Row: {
+          candidate_id: string
+          claimed_level: string
+          cpd_category: string | null
+          cpd_hours: number | null
+          cpd_signed_off_at: string | null
+          cpd_signed_off_by_display_name: string | null
+          cpd_signed_off_by_user_id: string | null
+          created_at: string
+          description: string
+          evidence_date: string
+          id: string
+          method: string
+          outcome: string
+          project_reference: string
+          project_type: string
+          riba_stage: string
+          structured_sections: Json | null
+          systems: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          claimed_level: string
+          cpd_category?: string | null
+          cpd_hours?: number | null
+          cpd_signed_off_at?: string | null
+          cpd_signed_off_by_display_name?: string | null
+          cpd_signed_off_by_user_id?: string | null
+          created_at?: string
+          description: string
+          evidence_date: string
+          id?: string
+          method: string
+          outcome: string
+          project_reference: string
+          project_type: string
+          riba_stage: string
+          structured_sections?: Json | null
+          systems?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          claimed_level?: string
+          cpd_category?: string | null
+          cpd_hours?: number | null
+          cpd_signed_off_at?: string | null
+          cpd_signed_off_by_display_name?: string | null
+          cpd_signed_off_by_user_id?: string | null
+          created_at?: string
+          description?: string
+          evidence_date?: string
+          id?: string
+          method?: string
+          outcome?: string
+          project_reference?: string
+          project_type?: string
+          riba_stage?: string
+          structured_sections?: Json | null
+          systems?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_entries_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "evidence_entries_cpd_signed_off_by_user_id_fkey"
+            columns: ["cpd_signed_off_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      evidence_verification_events: {
+        Row: {
+          actor_display_name: string
+          actor_user_id: string | null
+          created_at: string
+          event_type: string
+          evidence_id: string
+          id: string
+          occurred_at: string
+          reason: string | null
+        }
+        Insert: {
+          actor_display_name: string
+          actor_user_id?: string | null
+          created_at?: string
+          event_type: string
+          evidence_id: string
+          id?: string
+          occurred_at: string
+          reason?: string | null
+        }
+        Update: {
+          actor_display_name?: string
+          actor_user_id?: string | null
+          created_at?: string
+          event_type?: string
+          evidence_id?: string
+          id?: string
+          occurred_at?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evidence_verification_events_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "evidence_verification_events_evidence_id_fkey"
+            columns: ["evidence_id"]
+            isOneToOne: false
+            referencedRelation: "evidence_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_memberships: {
         Row: {
           archived_at: string | null
@@ -575,6 +955,60 @@ export type Database = {
           name?: string
           slug?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      standard_task_definitions: {
+        Row: {
+          competency_references: string[]
+          definition_version: number
+          deliverable: string
+          discipline: string
+          due_period: string
+          id: string
+          is_active: boolean
+          mentor_prompt: string
+          owner: string
+          priority: string
+          source_order: number
+          success_criteria: string
+          suggested_level: string
+          task_type: string
+          title: string
+        }
+        Insert: {
+          competency_references?: string[]
+          definition_version?: number
+          deliverable: string
+          discipline: string
+          due_period: string
+          id: string
+          is_active?: boolean
+          mentor_prompt: string
+          owner: string
+          priority: string
+          source_order: number
+          success_criteria: string
+          suggested_level: string
+          task_type: string
+          title: string
+        }
+        Update: {
+          competency_references?: string[]
+          definition_version?: number
+          deliverable?: string
+          discipline?: string
+          due_period?: string
+          id?: string
+          is_active?: boolean
+          mentor_prompt?: string
+          owner?: string
+          priority?: string
+          source_order?: number
+          success_criteria?: string
+          suggested_level?: string
+          task_type?: string
+          title?: string
         }
         Relationships: []
       }
