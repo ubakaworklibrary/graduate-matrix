@@ -2,6 +2,15 @@
 
 import { useState } from "react";
 import { logout } from "@/app/auth-actions";
+import type { CandidateInfo } from "@/types/graduate-matrix";
+import CandidatePanel from "./CandidatePanel";
+import type { CandidateBaselineView } from "./BaselinePanel";
+import MatrixPanel, { type CandidateMatrixView } from "./MatrixPanel";
+import PortfolioPanel, { type CandidatePortfolioView } from "./PortfolioPanel";
+import MeetingLogPanel, {
+  type CandidateMeetingLogView,
+} from "./MeetingLogPanel";
+import CpdLogPanel, { type CandidateCpdLogView } from "./CpdLogPanel";
 
 const tabs = [
   "Candidate",
@@ -15,7 +24,52 @@ const tabs = [
 
 type Tab = (typeof tabs)[number];
 
-export default function GraduateMatrixApp() {
+export type CandidateLoadState =
+  | "loaded"
+  | "not-linked"
+  | "incomplete"
+  | "error";
+
+interface GraduateMatrixAppProps {
+  candidate: CandidateInfo | null;
+  candidateState: CandidateLoadState;
+  baseline: CandidateBaselineView | null;
+  matrix: CandidateMatrixView | null;
+  portfolio: CandidatePortfolioView | null;
+  meetingLog: CandidateMeetingLogView | null;
+  cpdLog: CandidateCpdLogView | null;
+}
+
+const candidateStateMessages: Record<
+  Exclude<CandidateLoadState, "loaded">,
+  { title: string; message: string }
+> = {
+  "not-linked": {
+    title: "Candidate profile not linked",
+    message:
+      "Your user account is not yet linked to a Graduate Matrix candidate profile.",
+  },
+  incomplete: {
+    title: "Candidate setup incomplete",
+    message:
+      "Your candidate profile exists, but its professional pathway has not been completed yet.",
+  },
+  error: {
+    title: "Candidate profile unavailable",
+    message:
+      "We could not load your candidate profile. Please refresh the page or try again later.",
+  },
+};
+
+export default function GraduateMatrixApp({
+  candidate,
+  candidateState,
+  baseline,
+  matrix,
+  portfolio,
+  meetingLog,
+  cpdLog,
+}: GraduateMatrixAppProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Candidate");
 
   return (
@@ -66,13 +120,40 @@ export default function GraduateMatrixApp() {
       </header>
 
       <main className="mx-auto w-full max-w-[1500px] px-4 py-4 sm:px-6 sm:py-6">
-        <section className="rounded-lg border border-border bg-surface p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
-          <h2 className="text-xl font-bold">{activeTab}</h2>
-          <p className="mt-2 text-sm text-text-secondary">
-            This section will be migrated from the original Graduate Matrix
-            application.
-          </p>
-        </section>
+        {activeTab === "Candidate" ? (
+          candidateState === "loaded" && candidate && baseline ? (
+            <CandidatePanel candidate={candidate} baseline={baseline} />
+          ) : (
+            <section className="rounded-lg border border-border bg-surface p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
+              <h2 className="text-xl font-bold">
+                {candidateState === "loaded"
+                  ? "Candidate profile unavailable"
+                  : candidateStateMessages[candidateState].title}
+              </h2>
+              <p className="mt-2 text-sm text-text-secondary">
+                {candidateState === "loaded"
+                  ? "We could not load your candidate profile."
+                  : candidateStateMessages[candidateState].message}
+              </p>
+            </section>
+          )
+        ) : activeTab === "Portfolio" && portfolio ? (
+          <PortfolioPanel portfolio={portfolio} />
+        ) : activeTab === "Matrix" && matrix ? (
+          <MatrixPanel matrix={matrix} />
+        ) : activeTab === "CPD Log" && cpdLog ? (
+          <CpdLogPanel cpdLog={cpdLog} />
+        ) : activeTab === "Meeting Log" && meetingLog ? (
+          <MeetingLogPanel meetingLog={meetingLog} />
+        ) : (
+          <section className="rounded-lg border border-border bg-surface p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
+            <h2 className="text-xl font-bold">{activeTab}</h2>
+            <p className="mt-2 text-sm text-text-secondary">
+              This section will be migrated from the original Graduate Matrix
+              application.
+            </p>
+          </section>
+        )}
       </main>
     </div>
   );
