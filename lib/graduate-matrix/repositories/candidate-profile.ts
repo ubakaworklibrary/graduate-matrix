@@ -44,6 +44,23 @@ export async function loadAuthenticatedCandidateProfile(
     return { status: "not-found" };
   }
 
+  return loadCandidateProfileById(candidate.id);
+}
+
+export async function loadCandidateProfileById(
+  serverValidatedCandidateId: string,
+): Promise<AuthenticatedCandidateProfileResult> {
+  const supabase = await createClient();
+  const { data: candidate, error: candidateError } = await supabase
+    .from("candidates")
+    .select("*")
+    .eq("id", serverValidatedCandidateId)
+    .is("archived_at", null)
+    .maybeSingle();
+
+  if (candidateError) return { status: "error" };
+  if (!candidate) return { status: "not-found" };
+
   const currentTime = new Date().toISOString();
   const [relationshipsResult, pathwayResult] = await Promise.all([
     supabase

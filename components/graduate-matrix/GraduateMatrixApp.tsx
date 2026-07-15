@@ -11,6 +11,9 @@ import MeetingLogPanel, {
   type CandidateMeetingLogView,
 } from "./MeetingLogPanel";
 import CpdLogPanel, { type CandidateCpdLogView } from "./CpdLogPanel";
+import MentorWorkflowPanel from "./MentorWorkflowPanel";
+import type { MentorWorkflowView } from "@/lib/graduate-matrix/mappers/mentor-workflow";
+import type { AccessibleCandidate } from "@/lib/graduate-matrix/repositories/candidate-access";
 
 const tabs = [
   "Candidate",
@@ -38,6 +41,10 @@ interface GraduateMatrixAppProps {
   portfolio: CandidatePortfolioView | null;
   meetingLog: CandidateMeetingLogView | null;
   cpdLog: CandidateCpdLogView | null;
+  accessibleCandidates: AccessibleCandidate[];
+  selectedCandidateId: string | null;
+  mentorWorkflow: MentorWorkflowView | null;
+  workflowMessage: { outcome: "success" | "error"; message: string } | null;
 }
 
 const candidateStateMessages: Record<
@@ -69,6 +76,10 @@ export default function GraduateMatrixApp({
   portfolio,
   meetingLog,
   cpdLog,
+  accessibleCandidates,
+  selectedCandidateId,
+  mentorWorkflow,
+  workflowMessage,
 }: GraduateMatrixAppProps) {
   const [activeTab, setActiveTab] = useState<Tab>("Candidate");
 
@@ -120,6 +131,20 @@ export default function GraduateMatrixApp({
       </header>
 
       <main className="mx-auto w-full max-w-[1500px] px-4 py-4 sm:px-6 sm:py-6">
+        {accessibleCandidates.length > 1 ? (
+          <form method="get" className="mb-4 flex flex-wrap items-center gap-2 rounded-lg border border-border bg-surface p-3">
+            <label className="text-sm font-bold" htmlFor="candidate-selector">Candidate</label>
+            <select id="candidate-selector" name="candidate" defaultValue={selectedCandidateId ?? ""} className="rounded-md border border-border bg-page px-3 py-2 text-sm">
+              {accessibleCandidates.map((option) => <option key={option.id} value={option.id}>{option.name}</option>)}
+            </select>
+            <button className="rounded-md bg-accent px-3 py-2 text-sm font-bold text-white">Load candidate</button>
+          </form>
+        ) : null}
+        {workflowMessage ? (
+          <p className={`mb-4 rounded-md border px-3 py-2 text-sm font-semibold ${workflowMessage.outcome === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
+            {workflowMessage.message}
+          </p>
+        ) : null}
         {activeTab === "Candidate" ? (
           candidateState === "loaded" && candidate && baseline ? (
             <CandidatePanel candidate={candidate} baseline={baseline} />
@@ -140,7 +165,10 @@ export default function GraduateMatrixApp({
         ) : activeTab === "Portfolio" && portfolio ? (
           <PortfolioPanel portfolio={portfolio} />
         ) : activeTab === "Matrix" && matrix ? (
-          <MatrixPanel matrix={matrix} />
+          <>
+            {mentorWorkflow && selectedCandidateId ? <MentorWorkflowPanel candidateId={selectedCandidateId} workflow={mentorWorkflow} /> : null}
+            <MatrixPanel matrix={matrix} />
+          </>
         ) : activeTab === "CPD Log" && cpdLog ? (
           <CpdLogPanel cpdLog={cpdLog} />
         ) : activeTab === "Meeting Log" && meetingLog ? (

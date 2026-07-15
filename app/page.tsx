@@ -1,7 +1,7 @@
 import GraduateMatrixApp from "../components/graduate-matrix/GraduateMatrixApp";
 import LoginForm from "@/components/auth/LoginForm";
 import { createClient } from "@/lib/supabase/server";
-import { loadAuthenticatedCandidateProfile } from "@/lib/graduate-matrix/repositories/candidate-profile";
+import { loadCandidateProfileById } from "@/lib/graduate-matrix/repositories/candidate-profile";
 import { mapCandidateProfile } from "@/lib/graduate-matrix/mappers/candidate-profile";
 import { loadCandidateBaseline } from "@/lib/graduate-matrix/repositories/candidate-baseline";
 import { mapCandidateBaseline } from "@/lib/graduate-matrix/mappers/candidate-baseline";
@@ -15,8 +15,11 @@ import { loadCandidateMeetingLog } from "@/lib/graduate-matrix/repositories/cand
 import { mapCandidateMeetingLog } from "@/lib/graduate-matrix/mappers/candidate-meeting-log";
 import { loadCandidateCpd } from "@/lib/graduate-matrix/repositories/candidate-cpd";
 import { mapCandidateCpd } from "@/lib/graduate-matrix/mappers/candidate-cpd";
+import { loadCandidateAccessContext } from "@/lib/graduate-matrix/repositories/candidate-access";
+import { loadMentorWorkflow } from "@/lib/graduate-matrix/repositories/mentor-workflow";
+import { mapMentorWorkflow } from "@/lib/graduate-matrix/mappers/mentor-workflow";
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -26,7 +29,25 @@ export default async function Home() {
     return <LoginForm />;
   }
 
-  const profileResult = await loadAuthenticatedCandidateProfile(user.id);
+  const params = await searchParams;
+  const requestedCandidate = typeof params.candidate === "string" ? params.candidate : undefined;
+  const access = await loadCandidateAccessContext(user.id, requestedCandidate);
+  const selectedCandidateId = access?.selectedCandidateId ?? null;
+  const commonProps = {
+    accessibleCandidates: access?.candidates ?? [],
+    selectedCandidateId,
+    mentorWorkflow: null,
+    workflowMessage: null,
+  };
+
+  if (!access) {
+    return <GraduateMatrixApp candidateState="error" candidate={null} baseline={null} matrix={null} portfolio={null} meetingLog={null} cpdLog={null} {...commonProps} />;
+  }
+  if (!selectedCandidateId) {
+    return <GraduateMatrixApp candidateState="not-linked" candidate={null} baseline={null} matrix={null} portfolio={null} meetingLog={null} cpdLog={null} {...commonProps} />;
+  }
+
+  const profileResult = await loadCandidateProfileById(selectedCandidateId);
 
   if (profileResult.status === "error") {
     return (
@@ -38,6 +59,7 @@ export default async function Home() {
         portfolio={null}
         meetingLog={null}
         cpdLog={null}
+        {...commonProps}
       />
     );
   }
@@ -52,6 +74,7 @@ export default async function Home() {
         portfolio={null}
         meetingLog={null}
         cpdLog={null}
+        {...commonProps}
       />
     );
   }
@@ -68,6 +91,7 @@ export default async function Home() {
         portfolio={null}
         meetingLog={null}
         cpdLog={null}
+        {...commonProps}
       />
     );
   }
@@ -79,12 +103,14 @@ export default async function Home() {
     portfolioResult,
     meetingLogResult,
     cpdResult,
+    mentorWorkflowResult,
   ] = await Promise.all([
     loadCandidateBaseline(candidate.id),
     loadCandidateCompetencies(candidate.id),
     loadCandidatePortfolio(candidate.id),
     loadCandidateMeetingLog(candidate.id),
     loadCandidateCpd(candidate.id),
+    access.canProgressSelectedCandidate ? loadMentorWorkflow(candidate.id) : Promise.resolve(null),
   ]);
 
   let baseline;
@@ -262,6 +288,20 @@ export default async function Home() {
           };
   }
 
+  let mentorWorkflow = null;
+  if (mentorWorkflowResult?.status === "loaded") {
+    mentorWorkflow = mapMentorWorkflow(candidate.id, mentorWorkflowResult.rows);
+    if (!mentorWorkflow) console.error("Graduate Matrix mentor workflow mapping found inconsistent persisted data.");
+  }
+
+  const workflowOutcome: "success" | "error" | null =
+    params.workflow === "success" || params.workflow === "error"
+      ? params.workflow
+      : null;
+  const workflowMessage = workflowOutcome && typeof params.message === "string"
+    ? { outcome: workflowOutcome, message: params.message }
+    : null;
+
   return (
     <GraduateMatrixApp
       candidateState="loaded"
@@ -271,6 +311,10 @@ export default async function Home() {
       portfolio={portfolio}
       meetingLog={meetingLog}
       cpdLog={cpdLog}
+      accessibleCandidates={access.candidates}
+      selectedCandidateId={candidate.id}
+      mentorWorkflow={mentorWorkflow}
+      workflowMessage={workflowMessage}
     />
   );
 }
