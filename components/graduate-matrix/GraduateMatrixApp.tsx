@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { logout } from "@/app/auth-actions";
 
 const tabs = [
   "Candidate",
@@ -52,6 +53,15 @@ export default function GraduateMatrixApp() {
               );
             })}
           </nav>
+
+          <form action={logout} className="flex shrink-0 items-center pl-3">
+            <button
+              type="submit"
+              className="rounded-md border border-border px-3 py-1.5 text-xs font-semibold text-text-secondary transition-colors hover:border-accent hover:text-accent"
+            >
+              Log out
+            </button>
+          </form>
         </div>
       </header>
 
