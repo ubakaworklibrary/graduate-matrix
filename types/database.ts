@@ -349,6 +349,60 @@ export type Database = {
           },
         ]
       }
+      candidate_reviews: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          id: string
+          next_review_date: string | null
+          notes: string
+          outcome: string
+          reviewed_by_display_name: string
+          reviewed_by_user_id: string | null
+          reviewed_on: string | null
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          id?: string
+          next_review_date?: string | null
+          notes?: string
+          outcome: string
+          reviewed_by_display_name: string
+          reviewed_by_user_id?: string | null
+          reviewed_on?: string | null
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          id?: string
+          next_review_date?: string | null
+          notes?: string
+          outcome?: string
+          reviewed_by_display_name?: string
+          reviewed_by_user_id?: string | null
+          reviewed_on?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_reviews_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_reviews_reviewed_by_user_id_fkey"
+            columns: ["reviewed_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       candidates: {
         Row: {
           archived_at: string | null
@@ -412,6 +466,70 @@ export type Database = {
           {
             foreignKeyName: "candidates_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      competency_cycle_reviews: {
+        Row: {
+          candidate_competency_id: string
+          candidate_id: string
+          created_at: string
+          cycle_id: string
+          id: string
+          next_action: string | null
+          recommendation: string
+          reviewed_at: string
+          reviewed_by_display_name: string
+          reviewed_by_user_id: string | null
+          status: string
+        }
+        Insert: {
+          candidate_competency_id: string
+          candidate_id: string
+          created_at?: string
+          cycle_id: string
+          id?: string
+          next_action?: string | null
+          recommendation: string
+          reviewed_at: string
+          reviewed_by_display_name: string
+          reviewed_by_user_id?: string | null
+          status: string
+        }
+        Update: {
+          candidate_competency_id?: string
+          candidate_id?: string
+          created_at?: string
+          cycle_id?: string
+          id?: string
+          next_action?: string | null
+          recommendation?: string
+          reviewed_at?: string
+          reviewed_by_display_name?: string
+          reviewed_by_user_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "competency_cycle_reviews_candidate_competency_fkey"
+            columns: ["candidate_id", "candidate_competency_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_competencies"
+            referencedColumns: ["candidate_id", "id"]
+          },
+          {
+            foreignKeyName: "competency_cycle_reviews_cycle_fkey"
+            columns: ["candidate_competency_id", "cycle_id"]
+            isOneToOne: false
+            referencedRelation: "competency_cycles"
+            referencedColumns: ["candidate_competency_id", "id"]
+          },
+          {
+            foreignKeyName: "competency_cycle_reviews_reviewed_by_user_id_fkey"
+            columns: ["reviewed_by_user_id"]
             isOneToOne: false
             referencedRelation: "user_profiles"
             referencedColumns: ["user_id"]
@@ -508,6 +626,166 @@ export type Database = {
           source_order?: number
         }
         Relationships: []
+      }
+      cpd_attachments: {
+        Row: {
+          added_at: string
+          added_by_user_id: string | null
+          cpd_entry_id: string
+          display_filename: string
+          id: string
+          storage_key: string
+        }
+        Insert: {
+          added_at?: string
+          added_by_user_id?: string | null
+          cpd_entry_id: string
+          display_filename: string
+          id?: string
+          storage_key: string
+        }
+        Update: {
+          added_at?: string
+          added_by_user_id?: string | null
+          cpd_entry_id?: string
+          display_filename?: string
+          id?: string
+          storage_key?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cpd_attachments_added_by_user_id_fkey"
+            columns: ["added_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "cpd_attachments_cpd_entry_id_fkey"
+            columns: ["cpd_entry_id"]
+            isOneToOne: false
+            referencedRelation: "cpd_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cpd_competency_links: {
+        Row: {
+          accepted_at: string | null
+          accepted_by_display_name: string | null
+          accepted_by_user_id: string | null
+          competency_definition_id: string
+          cpd_entry_id: string
+          created_at: string
+          id: string
+          link_type: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by_display_name?: string | null
+          accepted_by_user_id?: string | null
+          competency_definition_id: string
+          cpd_entry_id: string
+          created_at?: string
+          id?: string
+          link_type: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by_display_name?: string | null
+          accepted_by_user_id?: string | null
+          competency_definition_id?: string
+          cpd_entry_id?: string
+          created_at?: string
+          id?: string
+          link_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cpd_competency_links_accepted_by_user_id_fkey"
+            columns: ["accepted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "cpd_competency_links_competency_definition_id_fkey"
+            columns: ["competency_definition_id"]
+            isOneToOne: false
+            referencedRelation: "competency_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cpd_competency_links_cpd_entry_id_fkey"
+            columns: ["cpd_entry_id"]
+            isOneToOne: false
+            referencedRelation: "cpd_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cpd_entries: {
+        Row: {
+          candidate_id: string
+          category: string
+          cpd_date: string
+          created_at: string
+          description: string
+          hours: number
+          id: string
+          outcome: string
+          signed_off_at: string | null
+          signed_off_by_display_name: string | null
+          signed_off_by_user_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          category: string
+          cpd_date: string
+          created_at?: string
+          description?: string
+          hours: number
+          id?: string
+          outcome?: string
+          signed_off_at?: string | null
+          signed_off_by_display_name?: string | null
+          signed_off_by_user_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          category?: string
+          cpd_date?: string
+          created_at?: string
+          description?: string
+          hours?: number
+          id?: string
+          outcome?: string
+          signed_off_at?: string | null
+          signed_off_by_display_name?: string | null
+          signed_off_by_user_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cpd_entries_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cpd_entries_signed_off_by_user_id_fkey"
+            columns: ["signed_off_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       development_actions: {
         Row: {
@@ -889,6 +1167,146 @@ export type Database = {
           },
         ]
       }
+      meetings: {
+        Row: {
+          attendees: string
+          candidate_comment: string
+          candidate_id: string
+          created_at: string
+          created_by_display_name: string
+          created_by_user_id: string | null
+          duration: string
+          id: string
+          meeting_date: string
+          meeting_type: string
+          notes: string
+          outcome: string
+          review_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          attendees: string
+          candidate_comment?: string
+          candidate_id: string
+          created_at?: string
+          created_by_display_name: string
+          created_by_user_id?: string | null
+          duration: string
+          id?: string
+          meeting_date: string
+          meeting_type: string
+          notes?: string
+          outcome?: string
+          review_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          attendees?: string
+          candidate_comment?: string
+          candidate_id?: string
+          created_at?: string
+          created_by_display_name?: string
+          created_by_user_id?: string | null
+          duration?: string
+          id?: string
+          meeting_date?: string
+          meeting_type?: string
+          notes?: string
+          outcome?: string
+          review_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "meetings_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mentor_assessments: {
+        Row: {
+          assessed_at: string | null
+          assessed_by_display_name: string | null
+          assessed_by_user_id: string | null
+          candidate_competency_id: string
+          candidate_id: string
+          created_at: string
+          cycle_id: string
+          id: string
+          next_action: string
+          recommendation: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          assessed_at?: string | null
+          assessed_by_display_name?: string | null
+          assessed_by_user_id?: string | null
+          candidate_competency_id: string
+          candidate_id: string
+          created_at?: string
+          cycle_id: string
+          id?: string
+          next_action?: string
+          recommendation: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          assessed_at?: string | null
+          assessed_by_display_name?: string | null
+          assessed_by_user_id?: string | null
+          candidate_competency_id?: string
+          candidate_id?: string
+          created_at?: string
+          cycle_id?: string
+          id?: string
+          next_action?: string
+          recommendation?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mentor_assessments_assessed_by_user_id_fkey"
+            columns: ["assessed_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "mentor_assessments_candidate_competency_fkey"
+            columns: ["candidate_id", "candidate_competency_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_competencies"
+            referencedColumns: ["candidate_id", "id"]
+          },
+          {
+            foreignKeyName: "mentor_assessments_cycle_fkey"
+            columns: ["candidate_competency_id", "cycle_id"]
+            isOneToOne: false
+            referencedRelation: "competency_cycles"
+            referencedColumns: ["candidate_competency_id", "id"]
+          },
+        ]
+      }
       organization_memberships: {
         Row: {
           archived_at: string | null
@@ -957,6 +1375,143 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      progression_events: {
+        Row: {
+          approval_authority: string | null
+          candidate_competency_id: string
+          candidate_id: string
+          created_at: string
+          cycle_id: string
+          destination_cycle_id: string | null
+          event_type: string
+          evidence_basis: string | null
+          from_level: string | null
+          id: string
+          import_source_reference: string | null
+          is_imported: boolean
+          level: string | null
+          manager_signed_off_at: string | null
+          manager_signed_off_by_display_name: string | null
+          manager_signed_off_by_user_id: string | null
+          manager_signoff_confirmed: boolean | null
+          mentor_approved_at: string | null
+          mentor_approved_by_display_name: string | null
+          mentor_approved_by_user_id: string | null
+          occurred_at: string
+          performed_by_display_name: string
+          performed_by_user_id: string | null
+          previous_cycle_id: string | null
+          reason: string | null
+          to_level: string | null
+        }
+        Insert: {
+          approval_authority?: string | null
+          candidate_competency_id: string
+          candidate_id: string
+          created_at?: string
+          cycle_id: string
+          destination_cycle_id?: string | null
+          event_type: string
+          evidence_basis?: string | null
+          from_level?: string | null
+          id?: string
+          import_source_reference?: string | null
+          is_imported?: boolean
+          level?: string | null
+          manager_signed_off_at?: string | null
+          manager_signed_off_by_display_name?: string | null
+          manager_signed_off_by_user_id?: string | null
+          manager_signoff_confirmed?: boolean | null
+          mentor_approved_at?: string | null
+          mentor_approved_by_display_name?: string | null
+          mentor_approved_by_user_id?: string | null
+          occurred_at: string
+          performed_by_display_name: string
+          performed_by_user_id?: string | null
+          previous_cycle_id?: string | null
+          reason?: string | null
+          to_level?: string | null
+        }
+        Update: {
+          approval_authority?: string | null
+          candidate_competency_id?: string
+          candidate_id?: string
+          created_at?: string
+          cycle_id?: string
+          destination_cycle_id?: string | null
+          event_type?: string
+          evidence_basis?: string | null
+          from_level?: string | null
+          id?: string
+          import_source_reference?: string | null
+          is_imported?: boolean
+          level?: string | null
+          manager_signed_off_at?: string | null
+          manager_signed_off_by_display_name?: string | null
+          manager_signed_off_by_user_id?: string | null
+          manager_signoff_confirmed?: boolean | null
+          mentor_approved_at?: string | null
+          mentor_approved_by_display_name?: string | null
+          mentor_approved_by_user_id?: string | null
+          occurred_at?: string
+          performed_by_display_name?: string
+          performed_by_user_id?: string | null
+          previous_cycle_id?: string | null
+          reason?: string | null
+          to_level?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progression_events_candidate_competency_fkey"
+            columns: ["candidate_id", "candidate_competency_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_competencies"
+            referencedColumns: ["candidate_id", "id"]
+          },
+          {
+            foreignKeyName: "progression_events_cycle_fkey"
+            columns: ["candidate_competency_id", "cycle_id"]
+            isOneToOne: false
+            referencedRelation: "competency_cycles"
+            referencedColumns: ["candidate_competency_id", "id"]
+          },
+          {
+            foreignKeyName: "progression_events_destination_cycle_fkey"
+            columns: ["candidate_competency_id", "destination_cycle_id"]
+            isOneToOne: false
+            referencedRelation: "competency_cycles"
+            referencedColumns: ["candidate_competency_id", "id"]
+          },
+          {
+            foreignKeyName: "progression_events_manager_signed_off_by_user_id_fkey"
+            columns: ["manager_signed_off_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "progression_events_mentor_approved_by_user_id_fkey"
+            columns: ["mentor_approved_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "progression_events_performed_by_user_id_fkey"
+            columns: ["performed_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "progression_events_previous_cycle_fkey"
+            columns: ["candidate_competency_id", "previous_cycle_id"]
+            isOneToOne: false
+            referencedRelation: "competency_cycles"
+            referencedColumns: ["candidate_competency_id", "id"]
+          },
+        ]
       }
       standard_task_definitions: {
         Row: {
@@ -1038,7 +1593,71 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      complete_active_competency_cycle: {
+        Args: {
+          p_candidate_competency_id: string
+          p_carry_forward_selections: Json
+          p_evidence_basis: string
+          p_manager_signed_off_at: string
+          p_manager_signed_off_by_display_name: string
+          p_manager_signed_off_by_user_id: string
+          p_manager_signoff_confirmed: boolean
+          p_mentor_assessment_id: string
+          p_mentor_completed_at: string
+          p_mentor_completed_by_display_name: string
+          p_mentor_completed_by_user_id: string
+          p_occurred_at: string
+          p_performed_by_display_name: string
+          p_reason: string
+        }
+        Returns: {
+          completed_cycle_id: string
+          destination_cycle_id: string
+          progression_event_id: string
+        }[]
+      }
+      initialize_candidate_competency: {
+        Args: {
+          p_candidate_id: string
+          p_competency_definition_id: string
+          p_initial_level: string
+          p_occurred_at: string
+          p_performed_by_display_name: string
+          p_reason: string
+        }
+        Returns: {
+          candidate_competency_id: string
+          initial_cycle_id: string
+        }[]
+      }
+      reopen_earlier_competency_level: {
+        Args: {
+          p_candidate_competency_id: string
+          p_level: string
+          p_occurred_at: string
+          p_performed_by_display_name: string
+          p_reason: string
+          p_represented_cycle_ids: string[]
+        }
+        Returns: {
+          reopened_cycle_id: string
+          reopened_event_id: string
+        }[]
+      }
+      reset_active_competency_cycle: {
+        Args: {
+          p_candidate_competency_id: string
+          p_occurred_at: string
+          p_performed_by_display_name: string
+          p_reason: string
+        }
+        Returns: {
+          locked_cycle_id: string
+          opened_event_id: string
+          replacement_cycle_id: string
+          reset_event_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
