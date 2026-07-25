@@ -27,6 +27,7 @@ export interface CandidateCpdLogView {
 
 interface CpdLogPanelProps {
   cpdLog: CandidateCpdLogView;
+  role: "mentor" | "candidate";
 }
 
 const competencyById = new Map<string, (typeof COMPETENCY_DEFINITIONS)[number]>(
@@ -37,7 +38,7 @@ function displayLabel(value: string) {
   return value.replaceAll("-", " ");
 }
 
-export default function CpdLogPanel({ cpdLog }: CpdLogPanelProps) {
+export default function CpdLogPanel({ cpdLog, role }: CpdLogPanelProps) {
   if (cpdLog.state === "error") {
     return (
       <section className="rounded-lg border border-border bg-surface p-4 sm:p-5">
@@ -77,6 +78,12 @@ export default function CpdLogPanel({ cpdLog }: CpdLogPanelProps) {
 
   return (
     <div className="space-y-4">
+      <div className="portfolio-intro">
+        <strong>CPD Portfolio Workspace.</strong>{" "}
+        {role === "mentor"
+          ? "Review the candidate’s continuing professional development, learning hours, competency links and sign-off status."
+          : "Build and review your continuing professional development record, learning hours, competency links and sign-off status."}
+      </div>
       <section className="rounded-lg border border-border bg-surface p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)] sm:p-5">
         <p className="text-xs font-bold uppercase tracking-[0.08em] text-accent">
           Continuing professional development

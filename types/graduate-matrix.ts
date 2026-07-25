@@ -100,6 +100,8 @@ export interface ProfessionalPathway {
   currentMembershipStatus: string;
   academicRoute: string;
   notes: string;
+  configuredAt: IsoDateTime | null;
+  isConfigured: boolean;
 }
 
 export interface CandidateInfo {
@@ -456,6 +458,7 @@ export interface BaselineTaskDefinition {
   id: BaselineTaskId;
   title: string;
   description: string;
+  owner: string;
   mandatory: boolean;
   completionMode: BaselineTaskCompletionMode;
 }
@@ -534,4 +537,91 @@ export interface GraduateMatrixUiState {
 export interface GraduateMatrixState {
   domain: GraduateMatrixDomainState;
   ui: GraduateMatrixUiState;
+}
+
+export type PlacementDiscipline =
+  | "mechanical-public-health"
+  | "electrical"
+  | "sustainability"
+  | "administration";
+
+export type PlacementTaskProgress = "not-started" | "in-progress" | "complete";
+
+export type PlacementVerificationEventType =
+  | "verified"
+  | "changes-required"
+  | "reverification-required";
+
+export type PlacementVerificationStatus =
+  | "unverified"
+  | "verified"
+  | "changes-required"
+  | "reverification-required";
+
+export interface PlacementTaskDefinition {
+  id: string;
+  discipline: PlacementDiscipline;
+  title: string;
+  description: string;
+  suggestedStage: string | null;
+  sourceOrder: number;
+  isActive: boolean;
+}
+
+export interface PlacementVerificationEvent {
+  id: string;
+  eventType: PlacementVerificationEventType;
+  actorDisplayName: string;
+  mentorComment: string;
+  occurredAt: IsoDateTime;
+}
+
+export interface CandidatePlacementTask {
+  id: string;
+  taskDefinition: PlacementTaskDefinition;
+  candidateProgress: PlacementTaskProgress;
+  candidateNote: string;
+  candidateUpdatedAt: IsoDateTime | null;
+  candidateUpdatedByDisplayName: string | null;
+  assignedAt: IsoDateTime;
+  assignedByDisplayName: string;
+  currentVerificationStatus: PlacementVerificationStatus;
+  latestVerificationEvent: PlacementVerificationEvent | null;
+  verificationHistory: PlacementVerificationEvent[];
+}
+
+export interface PlacementWorkspaceSummary {
+  selectedTaskCount: number;
+  notStartedCount: number;
+  inProgressCount: number;
+  candidateCompleteCount: number;
+  verifiedCount: number;
+  changesRequiredCount: number;
+  reverificationRequiredCount: number;
+}
+
+export interface CandidatePlacementWorkspace {
+  id: string | null;
+  candidateId: CandidateId;
+  discipline: PlacementDiscipline;
+  assignedTasks: CandidatePlacementTask[];
+  availableTaskDefinitions: PlacementTaskDefinition[];
+  summary: PlacementWorkspaceSummary;
+}
+
+export type PlacementsViewState =
+  | "loaded"
+  | "unsupported-discipline"
+  | "error"
+  | "integrity-error";
+
+export interface PlacementsViewModel {
+  state: PlacementsViewState;
+  candidateId: CandidateId;
+  candidateHomeDiscipline: string;
+  eligibleDisciplines: PlacementDiscipline[];
+  workspaces: CandidatePlacementWorkspace[];
+  canAssignTasks: boolean;
+  canUpdateCandidateProgress: boolean;
+  canVerifyTasks: boolean;
 }

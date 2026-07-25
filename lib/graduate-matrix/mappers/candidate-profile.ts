@@ -64,6 +64,29 @@ function mapAllowedValues<Value extends string>(
   return mappedValues;
 }
 
+function isIsoDateTime(value: string): boolean {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.exec(value);
+  if (!match) return false;
+
+  const [, yearText, monthText, dayText, hourText, minuteText, secondText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const hour = Number(hourText);
+  const minute = Number(minuteText);
+  const second = Number(secondText);
+  const daysInMonth = month >= 1 && month <= 12
+    ? new Date(Date.UTC(year, month, 0)).getUTCDate()
+    : 0;
+
+  return day >= 1
+    && day <= daysInMonth
+    && hour <= 23
+    && minute <= 59
+    && second <= 59
+    && Number.isFinite(Date.parse(value));
+}
+
 function relationshipName(
   relationships: readonly CandidateRelationshipRow[],
   relationshipType: "mentor" | "manager" | "reviewer",
@@ -98,6 +121,7 @@ export function mapCandidateProfile(
       pathway.engineering_registration_target,
       ENGINEERING_REGISTRATION_TARGETS,
     ) ||
+    (pathway.configured_at !== null && !isIsoDateTime(pathway.configured_at)) ||
     lccStrands === null ||
     specialistRoutes === null
   ) {
@@ -131,6 +155,8 @@ export function mapCandidateProfile(
         currentMembershipStatus: pathway.current_membership_status,
         academicRoute: pathway.academic_route,
         notes: pathway.notes,
+        configuredAt: pathway.configured_at,
+        isConfigured: pathway.configured_at !== null,
       },
       createdAt: candidate.created_at,
       updatedAt: candidate.updated_at,

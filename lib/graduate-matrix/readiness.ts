@@ -4,7 +4,6 @@ import type {
   BaselineTaskId,
   BaselineTaskStatus,
   IsoDate,
-  PrimaryOutcome,
 } from "../../types/graduate-matrix";
 import { BASELINE_TASK_DEFINITIONS } from "./data/baseline-tasks";
 
@@ -15,7 +14,7 @@ export interface CandidateReadinessInput {
   mentorName: string;
   lineManagerName: string;
   reviewerName: string;
-  primaryOutcome: PrimaryOutcome | null;
+  pathwayConfigured: boolean;
 }
 
 export type BaselineTaskStateInput = Pick<BaselineTask, "id" | "status">;
@@ -50,7 +49,7 @@ export function isAutomaticBaselineTaskComplete(
         Boolean(candidate.schemeStartDate)
       );
     case "registration-route":
-      return candidate.primaryOutcome !== null;
+      return candidate.pathwayConfigured;
     case "mentor-confirmed":
       return Boolean(candidate.mentorName);
     case "manager-reviewer-confirmed":

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { COMPETENCY_DEFINITIONS } from "@/lib/graduate-matrix/data/competencies";
+import { BASELINE_TASK_DEFINITIONS } from "@/lib/graduate-matrix/data/baseline-tasks";
 import { loadCandidateAccessContext } from "@/lib/graduate-matrix/repositories/candidate-access";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,6 +14,12 @@ const levels = ["L1", "L2", "L3", "L4", "L5"] as const;
 function value(formData: FormData, name: string) {
   const item = formData.get(name);
   return typeof item === "string" ? item.trim() : "";
+}
+
+function isValidIsoDate(input: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input)) return false;
+  const date = new Date(`${input}T00:00:00Z`);
+  return !Number.isNaN(date.valueOf()) && date.toISOString().slice(0, 10) === input;
 }
 
 function finish(candidateId: string, outcome: "success" | "error", message: string): never {
@@ -91,7 +98,19 @@ export async function saveMentorAssessment(formData: FormData) {
     ? await auth.supabase.from("mentor_assessments").update(record).eq("id", assessmentId).eq("candidate_id", auth.candidateId).eq("candidate_competency_id", competency.id).eq("cycle_id", competency.active_cycle_id).select("id").maybeSingle()
     : await auth.supabase.from("mentor_assessments").insert(record).select("id").single();
   if (result.error || !result.data) return finish(auth.candidateId, "error", "The assessment could not be saved.");
-  return finish(auth.candidateId, "success", assessmentId ? "Assessment updated." : "Assessment recorded.");
+  const { error: reviewError } = await auth.supabase.from("competency_cycle_reviews").insert({
+    candidate_id: auth.candidateId,
+    candidate_competency_id: competency.id,
+    cycle_id: competency.active_cycle_id,
+    status,
+    recommendation,
+    next_action: value(formData, "nextAction") || null,
+    reviewed_at: new Date().toISOString(),
+    reviewed_by_user_id: auth.userId,
+    reviewed_by_display_name: auth.displayName,
+  });
+  if (reviewError) return finish(auth.candidateId, "error", "The assessment was saved, but its cycle review log could not be recorded.");
+  return finish(auth.candidateId, "success", assessmentId ? "Mentor assessment updated and logged." : "Mentor assessment saved and logged.");
 }
 
 export async function addCompetencyCycleReview(formData: FormData) {
@@ -133,6 +152,114 @@ export async function initializeCompetency(formData: FormData) {
     p_reason: value(formData, "reason"),
   });
   return error ? finish(auth.candidateId, "error", "Initialization was rejected.") : finish(auth.candidateId, "success", "Competency initialized at L1.");
+}
+
+export async function saveBaselineChecklist(formData: FormData) {
+  const auth = await authorize(formData);
+  if (!auth) return finish(value(formData, "candidateId"), "error", "Candidate access is no longer authorized.");
+
+  const manualTasks = BASELINE_TASK_DEFINITIONS.filter(({ completionMode }) => completionMode === "mentor");
+  const now = new Date().toISOString();
+  const { data: setup, error: setupError } = await auth.supabase
+    .from("candidate_baseline_setups")
+    .select("status")
+    .eq("candidate_id", auth.candidateId)
+    .maybeSingle();
+  if (setupError) return finish(auth.candidateId, "error", "The BL checklist could not be saved.");
+
+  if (!setup) {
+    const { error } = await auth.supabase.from("candidate_baseline_setups").insert({
+      candidate_id: auth.candidateId,
+      status: "in-progress",
+    });
+    if (error) return finish(auth.candidateId, "error", "The BL checklist could not be saved.");
+  } else if (setup.status === "not-started") {
+    const { error } = await auth.supabase
+      .from("candidate_baseline_setups")
+      .update({ status: "in-progress" })
+      .eq("candidate_id", auth.candidateId);
+    if (error) return finish(auth.candidateId, "error", "The BL checklist could not be saved.");
+  }
+
+  const { data: existing, error: existingError } = await auth.supabase
+    .from("candidate_baseline_tasks")
+    .select("definition_id, status, completed_at, completed_by_user_id, completed_by_display_name")
+    .eq("candidate_id", auth.candidateId)
+    .in("definition_id", manualTasks.map(({ id }) => id));
+  if (existingError) return finish(auth.candidateId, "error", "The BL checklist could not be saved.");
+  const existingById = new Map((existing ?? []).map((task) => [task.definition_id, task]));
+
+  const rows = manualTasks.map(({ id }) => {
+    const submittedStatus = value(formData, `status:${id}`);
+    const status = submittedStatus === "complete" ? "complete" : "not-complete";
+    const note = value(formData, `note:${id}`).slice(0, 500);
+    const previous = existingById.get(id);
+    const remainsComplete = status === "complete" && previous?.status === "complete";
+    return {
+      candidate_id: auth.candidateId,
+      definition_id: id,
+      status,
+      note,
+      completed_at: status === "complete" ? (remainsComplete ? previous.completed_at : now) : null,
+      completed_by_user_id: status === "complete" ? (remainsComplete ? previous.completed_by_user_id : auth.userId) : null,
+      completed_by_display_name: status === "complete" ? (remainsComplete ? previous.completed_by_display_name : auth.displayName) : null,
+      updated_at: now,
+    };
+  });
+  const { error } = await auth.supabase
+    .from("candidate_baseline_tasks")
+    .upsert(rows, { onConflict: "candidate_id,definition_id" });
+  return error
+    ? finish(auth.candidateId, "error", "The BL checklist could not be saved.")
+    : finish(auth.candidateId, "success", "BL checklist saved.");
+}
+
+export async function startL1Cycle(formData: FormData) {
+  const auth = await authorize(formData);
+  if (!auth) return finish(value(formData, "candidateId"), "error", "Candidate access is no longer authorized.");
+  const firstName = value(formData, "firstName");
+  const surname = value(formData, "surname");
+  const schemeStartDate = value(formData, "schemeStartDate");
+  if (!firstName || !surname || !isValidIsoDate(schemeStartDate)) {
+    return finish(auth.candidateId, "error", "Enter first name, surname and start date before starting L1.");
+  }
+  const { error: candidateError } = await auth.supabase
+    .from("candidates")
+    .update({ first_name: firstName, surname, scheme_start_date: schemeStartDate })
+    .eq("id", auth.candidateId);
+  if (candidateError) return finish(auth.candidateId, "error", "Candidate minimum setup could not be saved.");
+
+  const { data: existing, error: existingError } = await auth.supabase
+    .from("candidate_competencies")
+    .select("competency_definition_id")
+    .eq("candidate_id", auth.candidateId);
+  if (existingError) return finish(auth.candidateId, "error", "The current competency record could not be checked.");
+
+  const initialized = new Set((existing ?? []).map(({ competency_definition_id }) => competency_definition_id));
+  for (const definition of COMPETENCY_DEFINITIONS) {
+    if (initialized.has(definition.id)) continue;
+    const { error } = await auth.supabase.rpc("initialize_candidate_competency", {
+      p_candidate_id: auth.candidateId,
+      p_competency_definition_id: definition.id,
+      p_initial_level: "L1",
+      p_occurred_at: new Date().toISOString(),
+      p_performed_by_display_name: auth.displayName,
+      p_reason: "Formal L1 cycle started from baseline setup.",
+    });
+    if (error) return finish(auth.candidateId, "error", "L1 initialization was rejected.");
+  }
+
+  const now = new Date().toISOString();
+  const { error: baselineError } = await auth.supabase.from("candidate_baseline_setups").upsert({
+    candidate_id: auth.candidateId,
+    status: "completed",
+    formal_training_started_at: now,
+    formal_training_started_by_user_id: auth.userId,
+    formal_training_started_by_display_name: auth.displayName,
+  }, { onConflict: "candidate_id" });
+  if (baselineError) return finish(auth.candidateId, "error", "L1 started, but the baseline status could not be recorded.");
+
+  return finish(auth.candidateId, "success", "L1 cycle started.");
 }
 
 export async function resetCompetencyCycle(formData: FormData) {

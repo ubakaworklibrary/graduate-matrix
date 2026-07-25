@@ -37,6 +37,7 @@ export async function loadAuthenticatedCandidateProfile(
     .maybeSingle();
 
   if (candidateError) {
+    console.error("loadAuthenticatedCandidateProfile: candidate lookup failed", candidateError);
     return { status: "error" };
   }
 
@@ -58,7 +59,10 @@ export async function loadCandidateProfileById(
     .is("archived_at", null)
     .maybeSingle();
 
-  if (candidateError) return { status: "error" };
+  if (candidateError) {
+    console.error("loadCandidateProfileById: candidate lookup failed", candidateError);
+    return { status: "error" };
+  }
   if (!candidate) return { status: "not-found" };
 
   const currentTime = new Date().toISOString();
@@ -78,6 +82,10 @@ export async function loadCandidateProfileById(
   ]);
 
   if (relationshipsResult.error || pathwayResult.error) {
+    console.error("loadCandidateProfileById: relationships/pathway lookup failed", {
+      relationshipsError: relationshipsResult.error,
+      pathwayError: pathwayResult.error,
+    });
     return { status: "error" };
   }
 
@@ -106,6 +114,10 @@ export async function loadCandidateProfileById(
   ]);
 
   if (lccStrandsResult.error || specialistRoutesResult.error) {
+    console.error("loadCandidateProfileById: lccStrands/specialistRoutes lookup failed", {
+      lccStrandsError: lccStrandsResult.error,
+      specialistRoutesError: specialistRoutesResult.error,
+    });
     return { status: "error" };
   }
 

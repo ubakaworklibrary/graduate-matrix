@@ -37,9 +37,14 @@ export function mapCandidateBaseline(
   rows: CandidateBaselineRows,
 ): BaselineMappingResult {
   const databaseTaskIds = new Set(rows.definitions.map(({ id }) => id));
-  const definitionsMatch =
-    databaseTaskIds.size === CANONICAL_TASK_IDS.size &&
-    [...CANONICAL_TASK_IDS].every((id) => databaseTaskIds.has(id));
+  // Definitions are deployed before or alongside application code, but the UI
+  // must remain usable during that rollout. A database may temporarily be
+  // missing a newly added canonical definition; readiness can still render it
+  // from BASELINE_TASK_DEFINITIONS. Unknown database definitions remain an
+  // integrity error because the application cannot safely interpret them.
+  const definitionsMatch = [...databaseTaskIds].every((id) =>
+    CANONICAL_TASK_IDS.has(id),
+  );
 
   if (
     !definitionsMatch ||

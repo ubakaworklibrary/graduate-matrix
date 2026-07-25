@@ -90,6 +90,20 @@ export const PRIMARY_OUTCOME_OPTIONS = [
   { value: "custom", label: "Custom / to be agreed" },
 ] as const satisfies readonly PathwayOption<PrimaryOutcome>[];
 
+export function getProfessionalBodyLabel(code: string): string | null {
+  return (
+    PROFESSIONAL_BODY_OPTIONS.find((option) => option.value === code)?.label ??
+    null
+  );
+}
+
+export function getPrimaryOutcomeLabel(code: string): string | null {
+  return (
+    PRIMARY_OUTCOME_OPTIONS.find((option) => option.value === code)?.label ??
+    null
+  );
+}
+
 export const LCC_STRAND_OPTIONS = [
   { value: "building-design", label: "LCC Building Design" },
   { value: "building-operation", label: "LCC Building Operation" },

@@ -253,6 +253,9 @@ export type Database = {
           academic_route: string
           candidate_id: string
           cibse_membership_target: string
+          configured_at: string | null
+          configured_by_display_name: string | null
+          configured_by_user_id: string | null
           created_at: string
           current_membership_status: string
           engineering_registration_target: string
@@ -266,6 +269,9 @@ export type Database = {
           academic_route?: string
           candidate_id: string
           cibse_membership_target: string
+          configured_at?: string | null
+          configured_by_display_name?: string | null
+          configured_by_user_id?: string | null
           created_at?: string
           current_membership_status?: string
           engineering_registration_target: string
@@ -279,6 +285,9 @@ export type Database = {
           academic_route?: string
           candidate_id?: string
           cibse_membership_target?: string
+          configured_at?: string | null
+          configured_by_display_name?: string | null
+          configured_by_user_id?: string | null
           created_at?: string
           current_membership_status?: string
           engineering_registration_target?: string
@@ -295,6 +304,252 @@ export type Database = {
             isOneToOne: true
             referencedRelation: "candidates"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_pathways_configured_by_user_id_fkey"
+            columns: ["configured_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      candidate_placement_task_verification_events: {
+        Row: {
+          actor_display_name: string
+          actor_user_id: string | null
+          candidate_placement_task_id: string
+          created_at: string
+          event_type: string
+          id: string
+          mentor_comment: string
+          occurred_at: string
+        }
+        Insert: {
+          actor_display_name: string
+          actor_user_id?: string | null
+          candidate_placement_task_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          mentor_comment?: string
+          occurred_at?: string
+        }
+        Update: {
+          actor_display_name?: string
+          actor_user_id?: string | null
+          candidate_placement_task_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          mentor_comment?: string
+          occurred_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_placement_task_verif_candidate_placement_task_id_fkey"
+            columns: ["candidate_placement_task_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_placement_tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_placement_task_verification_events_actor_user_id_fkey"
+            columns: ["actor_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      candidate_placement_tasks: {
+        Row: {
+          assigned_at: string
+          assigned_by_display_name: string
+          assigned_by_user_id: string | null
+          candidate_note: string
+          candidate_placement_workspace_id: string
+          candidate_progress: string
+          candidate_updated_at: string | null
+          candidate_updated_by_display_name: string | null
+          candidate_updated_by_user_id: string | null
+          id: string
+          task_definition_id: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by_display_name: string
+          assigned_by_user_id?: string | null
+          candidate_note?: string
+          candidate_placement_workspace_id: string
+          candidate_progress?: string
+          candidate_updated_at?: string | null
+          candidate_updated_by_display_name?: string | null
+          candidate_updated_by_user_id?: string | null
+          id?: string
+          task_definition_id: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by_display_name?: string
+          assigned_by_user_id?: string | null
+          candidate_note?: string
+          candidate_placement_workspace_id?: string
+          candidate_progress?: string
+          candidate_updated_at?: string | null
+          candidate_updated_by_display_name?: string | null
+          candidate_updated_by_user_id?: string | null
+          id?: string
+          task_definition_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_placement_tasks_assigned_by_user_id_fkey"
+            columns: ["assigned_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "candidate_placement_tasks_candidate_placement_workspace_id_fkey"
+            columns: ["candidate_placement_workspace_id"]
+            isOneToOne: false
+            referencedRelation: "candidate_placement_workspaces"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_placement_tasks_candidate_updated_by_user_id_fkey"
+            columns: ["candidate_updated_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "candidate_placement_tasks_task_definition_id_fkey"
+            columns: ["task_definition_id"]
+            isOneToOne: false
+            referencedRelation: "placement_task_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      candidate_placement_workspaces: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          created_by_display_name: string
+          created_by_user_id: string | null
+          id: string
+          placement_discipline: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          created_by_display_name: string
+          created_by_user_id?: string | null
+          id?: string
+          placement_discipline: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          created_by_display_name?: string
+          created_by_user_id?: string | null
+          id?: string
+          placement_discipline?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_placement_workspaces_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_placement_workspaces_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      candidate_placements: {
+        Row: {
+          candidate_id: string
+          created_at: string
+          ends_on: string
+          host_discipline: string
+          host_team: string
+          id: string
+          mentor_verified_at: string | null
+          mentor_verified_by_display_name: string | null
+          mentor_verified_by_user_id: string | null
+          objectives: string
+          reflection: string
+          starts_on: string
+          status: string
+          supervisor_name: string
+          task_completion: Json
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          created_at?: string
+          ends_on: string
+          host_discipline: string
+          host_team?: string
+          id?: string
+          mentor_verified_at?: string | null
+          mentor_verified_by_display_name?: string | null
+          mentor_verified_by_user_id?: string | null
+          objectives?: string
+          reflection?: string
+          starts_on: string
+          status?: string
+          supervisor_name?: string
+          task_completion?: Json
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          created_at?: string
+          ends_on?: string
+          host_discipline?: string
+          host_team?: string
+          id?: string
+          mentor_verified_at?: string | null
+          mentor_verified_by_display_name?: string | null
+          mentor_verified_by_user_id?: string | null
+          objectives?: string
+          reflection?: string
+          starts_on?: string
+          status?: string
+          supervisor_name?: string
+          task_completion?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidate_placements_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "candidates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidate_placements_mentor_verified_by_user_id_fkey"
+            columns: ["mentor_verified_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "user_profiles"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -1376,6 +1631,42 @@ export type Database = {
         }
         Relationships: []
       }
+      placement_task_definitions: {
+        Row: {
+          created_at: string
+          description: string
+          discipline: string
+          id: string
+          is_active: boolean
+          source_order: number
+          suggested_stage: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          discipline: string
+          id: string
+          is_active?: boolean
+          source_order: number
+          suggested_stage?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          discipline?: string
+          id?: string
+          is_active?: boolean
+          source_order?: number
+          suggested_stage?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       progression_events: {
         Row: {
           approval_authority: string | null
@@ -1593,6 +1884,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_candidate_placement_tasks: {
+        Args: {
+          p_candidate_id: string
+          p_placement_discipline: string
+          p_task_definition_ids: string[]
+        }
+        Returns: {
+          assigned_at: string
+          assigned_by_display_name: string
+          assigned_by_user_id: string | null
+          candidate_note: string
+          candidate_placement_workspace_id: string
+          candidate_progress: string
+          candidate_updated_at: string | null
+          candidate_updated_by_display_name: string | null
+          candidate_updated_by_user_id: string | null
+          id: string
+          task_definition_id: string
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "candidate_placement_tasks"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       complete_active_competency_cycle: {
         Args: {
           p_candidate_competency_id: string
@@ -1630,6 +1948,29 @@ export type Database = {
           initial_cycle_id: string
         }[]
       }
+      record_candidate_placement_task_verification: {
+        Args: {
+          p_candidate_placement_task_id: string
+          p_decision: string
+          p_mentor_comment: string
+        }
+        Returns: {
+          actor_display_name: string
+          actor_user_id: string | null
+          candidate_placement_task_id: string
+          created_at: string
+          event_type: string
+          id: string
+          mentor_comment: string
+          occurred_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "candidate_placement_task_verification_events"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       reopen_earlier_competency_level: {
         Args: {
           p_candidate_competency_id: string
@@ -1657,6 +1998,71 @@ export type Database = {
           replacement_cycle_id: string
           reset_event_id: string
         }[]
+      }
+      save_candidate_pathway_configuration: {
+        Args: {
+          p_academic_route: string
+          p_candidate_id: string
+          p_cibse_membership_target: string
+          p_current_membership_status: string
+          p_engineering_registration_target: string
+          p_iet_membership_target: string
+          p_lcc_strands: string[]
+          p_notes: string
+          p_operation: string
+          p_primary_outcome: string
+          p_professional_body: string
+          p_specialist_routes: string[]
+        }
+        Returns: {
+          academic_route: string
+          candidate_id: string
+          cibse_membership_target: string
+          configured_at: string | null
+          configured_by_display_name: string | null
+          configured_by_user_id: string | null
+          created_at: string
+          current_membership_status: string
+          engineering_registration_target: string
+          iet_membership_target: string
+          notes: string
+          primary_outcome: string
+          professional_body: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "candidate_pathways"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      update_candidate_placement_task_progress: {
+        Args: {
+          p_candidate_note: string
+          p_candidate_placement_task_id: string
+          p_candidate_progress: string
+        }
+        Returns: {
+          assigned_at: string
+          assigned_by_display_name: string
+          assigned_by_user_id: string | null
+          candidate_note: string
+          candidate_placement_workspace_id: string
+          candidate_progress: string
+          candidate_updated_at: string | null
+          candidate_updated_by_display_name: string | null
+          candidate_updated_by_user_id: string | null
+          id: string
+          task_definition_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "candidate_placement_tasks"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
     }
     Enums: {

@@ -18,6 +18,11 @@ import { mapCandidateCpd } from "@/lib/graduate-matrix/mappers/candidate-cpd";
 import { loadCandidateAccessContext } from "@/lib/graduate-matrix/repositories/candidate-access";
 import { loadMentorWorkflow } from "@/lib/graduate-matrix/repositories/mentor-workflow";
 import { mapMentorWorkflow } from "@/lib/graduate-matrix/mappers/mentor-workflow";
+import { loadCandidatePlacements } from "@/lib/graduate-matrix/repositories/placements";
+import { mapCandidatePlacements } from "@/lib/graduate-matrix/mappers/placements";
+import { PLACEMENT_DISCIPLINE_CODES } from "@/lib/graduate-matrix/data/placements";
+import type { PortfolioTab } from "@/components/graduate-matrix/PortfolioPanel";
+import type { PlacementDiscipline, PlacementsViewModel } from "@/types/graduate-matrix";
 
 export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const supabase = await createClient();
@@ -38,6 +43,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
     selectedCandidateId,
     mentorWorkflow: null,
     workflowMessage: null,
+    placementsViewModel: null,
+    initialSection: "Candidate" as const,
+    initialPortfolioTab: "evidence" as PortfolioTab,
+    initialPlacementDiscipline: null,
   };
 
   if (!access) {
@@ -104,6 +113,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
     meetingLogResult,
     cpdResult,
     mentorWorkflowResult,
+    placementsResult,
   ] = await Promise.all([
     loadCandidateBaseline(candidate.id),
     loadCandidateCompetencies(candidate.id),
@@ -111,6 +121,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
     loadCandidateMeetingLog(candidate.id),
     loadCandidateCpd(candidate.id),
     access.canProgressSelectedCandidate ? loadMentorWorkflow(candidate.id) : Promise.resolve(null),
+    loadCandidatePlacements(candidate.id, user.id),
   ]);
 
   let baseline;
@@ -135,7 +146,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
           mentorName: candidate.mentorName,
           lineManagerName: candidate.lineManagerName,
           reviewerName: candidate.reviewerName,
-          primaryOutcome: candidate.pathway.primaryOutcome,
+          pathwayConfigured: candidate.pathway.isConfigured,
         },
         baselineMapping.setup?.tasks ?? {},
       );
@@ -294,12 +305,57 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
     if (!mentorWorkflow) console.error("Graduate Matrix mentor workflow mapping found inconsistent persisted data.");
   }
 
+  const unavailablePlacements = (state: "error" | "integrity-error"): PlacementsViewModel => ({
+    state,
+    candidateId: candidate.id,
+    candidateHomeDiscipline: candidate.discipline,
+    eligibleDisciplines: [],
+    workspaces: [],
+    canAssignTasks: false,
+    canUpdateCandidateProgress: false,
+    canVerifyTasks: false,
+  });
+
+  let placementsViewModel: PlacementsViewModel;
+  if (placementsResult.status === "error") {
+    placementsViewModel = unavailablePlacements("error");
+  } else {
+    const placementsMapping = mapCandidatePlacements(
+      candidate.id,
+      candidate.discipline,
+      placementsResult.rows,
+      {
+        canAssignTasks: access.canProgressSelectedCandidate,
+        canVerifyTasks: access.canProgressSelectedCandidate,
+        canUpdateCandidateProgress: placementsResult.isOwnCandidate,
+      },
+    );
+
+    if (placementsMapping.status === "integrity-error") {
+      console.error("Graduate Matrix Placements mapping found inconsistent persisted data.");
+    }
+
+    placementsViewModel = placementsMapping.status === "integrity-error"
+      ? unavailablePlacements("integrity-error")
+      : placementsMapping.data;
+  }
+
   const workflowOutcome: "success" | "error" | null =
     params.workflow === "success" || params.workflow === "error"
       ? params.workflow
       : null;
   const workflowMessage = workflowOutcome && typeof params.message === "string"
     ? { outcome: workflowOutcome, message: params.message }
+    : null;
+  const initialSection = params.section === "Portfolio" ? "Portfolio" as const : "Candidate" as const;
+  const initialPortfolioTab: PortfolioTab = ["matrix", "evidence", "actions", "placements", "project"].includes(String(params.portfolioTab))
+    ? params.portfolioTab as PortfolioTab
+    : "evidence";
+  const requestedPlacementDiscipline = typeof params.placementDiscipline === "string" ? params.placementDiscipline : "";
+  const initialPlacementDiscipline: PlacementDiscipline | null = PLACEMENT_DISCIPLINE_CODES.includes(
+    requestedPlacementDiscipline as PlacementDiscipline,
+  )
+    ? (requestedPlacementDiscipline as PlacementDiscipline)
     : null;
 
   return (
@@ -315,6 +371,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
       selectedCandidateId={candidate.id}
       mentorWorkflow={mentorWorkflow}
       workflowMessage={workflowMessage}
+      placementsViewModel={placementsViewModel}
+      initialSection={initialSection}
+      initialPortfolioTab={initialPortfolioTab}
+      initialPlacementDiscipline={initialPlacementDiscipline}
     />
   );
 }

@@ -44,6 +44,11 @@ export async function loadCandidateAccessContext(
     membershipsResult.error ||
     relationshipsResult.error
   ) {
+    console.error("loadCandidateAccessContext failed", {
+      candidatesError: candidatesResult.error,
+      membershipsError: membershipsResult.error,
+      relationshipsError: relationshipsResult.error,
+    });
     return null;
   }
 

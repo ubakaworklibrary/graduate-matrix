@@ -14,6 +14,10 @@ const COMPETENCY_LEVEL_VALUES: Record<CompetencyLevel, number> = {
   L5: 5,
 };
 
+export function competencyLevelToNumber(level: CompetencyLevel | null): number {
+  return level ? COMPETENCY_LEVEL_VALUES[level] : 0;
+}
+
 export interface CompetencyProgressSummary {
   currentLevel: CompetencyLevel | null;
   targetLevel: CompetencyLevel | null;
